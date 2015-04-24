@@ -1,0 +1,15 @@
+---
+
+dependencies: []
+
+galaxy_info:
+  author: Sebastian Gumprich
+  description: 'Deploy Splunkforwarder on RHEL6 hosts'
+  company: T-Systems MMS GmbH
+  license: GPLv2
+  min_ansible_version: '1.9.0'
+  platforms:
+    - name: Redhat
+      versions:
+        - 6
+  categories: [monitoring, system]

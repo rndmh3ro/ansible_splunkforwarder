@@ -1,0 +1,30 @@
+[tcpout]
+defaultGroup = default_output_server
+maxQueueSize = auto
+forwardedindex.0.whitelist = .*
+forwardedindex.1.blacklist = _.*
+forwardedindex.2.whitelist = (_audit|_internal|_introspection)
+forwardedindex.filter.disable = false
+indexAndForward = false
+autoLBFrequency = 30
+blockOnCloning = true
+compressed = true
+disabled = false
+dropClonedEventsOnQueueFull = 5
+dropEventsOnQueueFull = -1
+heartbeatFrequency = 30
+maxFailuresPerInterval = 2
+secsInFailureInterval = 1
+maxConnectionsPerIndexer = 2
+forceTimebasedAutoLB = false
+sendCookedData = true
+connectionTimeout = 20
+readTimeout = 300
+writeTimeout = 300
+useACK = false
+blockWarnThreshold = 100
+
+[tcpout:default_output_server]
+server = {{splunkforwarder_server}}
+
+[tcpout-server://{{splunkforwarder_server}}]

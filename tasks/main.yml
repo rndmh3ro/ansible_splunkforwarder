@@ -1,0 +1,104 @@
+- name: install splunkforwarder from local repository
+  yum: name=splunkforwarder state=latest update_cache=yes
+  tags: install
+
+- name: create splunk user
+  user: name="splunk" shell="/sbin/nologin" password="!!" groups="" createhome=no
+  tags: user
+
+- name: add splunk-user to groups
+  user: name=splunk groups="{{item}}" append=yes
+  with_items:
+    - "tomcat"
+    - "mysql"
+  ignore_errors: True # errors need to be ignored when group does not exist on host
+  tags: user
+
+- name: chown splunk to {{splunkforwarder_dir}}/
+  file: path="{{splunkforwarder_dir}}" owner="splunk" group="splunk" recurse="yes" state=directory
+
+- name: accept splunk license
+  command: "{{splunkforwarder_dir}}/bin/splunk start --accept-license --answer-yes creates={{splunkforwarder_dir}}/etc/users/splunk-system-user"
+  tags: install
+
+- name: setup to start at boot
+  command: "{{splunkforwarder_dir}}/bin/splunk enable boot-start -user splunk --accept-license --answer-yes creates={{splunkforwarder_dir}}/etc/users/splunk-system-user"
+
+- name: bind splunk to frontend-interface
+  lineinfile: dest="{{splunkforwarder_dir}}/etc/splunk-launch.conf" line="SPLUNK_BINDIP={{frontend_ip}}" state=present
+  tags: config
+
+- name: bind splunk web-frontend to frontend-interface
+  lineinfile: dest="{{splunkforwarder_dir}}/etc/system/local/web.conf" line="mgmtHostPort={{frontend_ip}}:8089" state=present create=yes
+  tags: config
+
+- name: delete default search-app
+  file: name="{{splunkforwarder_dir}}/etc/apps/search/" state=absent
+  tags: config
+  register: forwarder_changed
+
+- name: delete config-apps directory, so we can start fresh
+  file: path="{{splunkforwarder_dir}}/etc/apps/custom/local" state=absent
+  register: forwarder_changed
+  tags: config
+
+- name: create config-apps directory
+  file: 
+    path="{{splunkforwarder_dir}}/etc/apps/custom/local"
+    state=directory
+    owner="splunk"
+    group="splunk"
+    mode=700
+  register: forwarder_changed
+  tags: config
+
+- name: create input configuration with default input files
+  template:
+    src="inputs_conf.j2"
+    dest="{{splunkforwarder_dir}}/etc/apps/custom/local/inputs.conf"
+    owner="splunk"
+    group="splunk"
+    mode=600
+  with_items: 
+    - splunkforwarder_log_items
+  tags: config
+
+- name: create input configuration with custom input files
+  template:
+    src="inputs_conf.j2"
+    dest="{{splunkforwarder_dir}}/etc/apps/custom/local/inputs.conf"
+    owner="splunk"
+    group="splunk"
+    mode=600
+  with_items:
+    - splunkforwarder_log_items_custom
+  when: splunkforwarder_log_items_custom is defined
+  tags: config
+
+- name: create output configuration
+  template:
+    src="outputs_conf.j2"
+    dest="{{splunkforwarder_dir}}/etc/apps/custom/local/outputs.conf"
+    owner="splunk"
+    group="splunk"
+    mode=600
+  with_items: splunkforwarder_log_items
+  tags: config
+
+- name: create limit configuration
+  template:
+    src="limits_conf.j2"
+    dest="{{splunkforwarder_dir}}/etc/apps/custom/local/limits.conf"
+    owner="splunk"
+    group="splunk"
+    mode=600
+  with_items: splunkforwarder_log_items
+  tags: config
+
+- name: start splunkforwarder
+  service: name=splunk state=restarted
+  tags:
+    - config
+    - restart
+    - install
+    - user
