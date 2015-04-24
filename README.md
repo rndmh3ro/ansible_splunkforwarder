@@ -9,6 +9,13 @@ none.
 
 Role Variables
 --------------
+- Index-server:
+  - ```splunkforwarder_server: '127.0.0.1:9997'```
+- Default install-directory: 
+  - ```splunkforwarder_dir: '/opt/splunkforwarder/'```
+- IP-Address to listen on: 
+  - ```frontend_ip: 127.0.0.1```
+
 - List of to be indexed logfiles on all/most hosts to use in group_vars
 ```
 - splunkforwarder_log_items:
