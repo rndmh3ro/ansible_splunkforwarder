@@ -10,34 +10,34 @@ none.
 Role Variables
 --------------
 - List of to be indexed logfiles on all/most hosts to use in group_vars
-
- -``` splunkforwarder_log_items:
+```
+- splunkforwarder_log_items:
   - app_name: custom
     source: "/var/log/messages"
     index: "syslog"
-    sourcetype: linux_messages_syslog```
-
+    sourcetype: linux_messages_syslog
+```
 
 - List of custom to be indexed logfiles to use in host_vars
-
- -``` splunkforwarder_log_items_custom:
-  - app_name: custom
-    source: "/var/log/mysql.log"
-    index: "mysql"
-    sourcetype: mysql```
-
+```
+ - splunkforwarder_log_items_custom:
+   - app_name: custom
+     source: "/var/log/mysql.log"
+     index: "mysql"
+     sourcetype: mysql```
+```
 Dependencies
 ------------
 none.
 
 Example Playbook
 ----------------
-
-    - hosts: all
-      gather_facts: true
-      roles:
-      - role: splunkforwarder
-
+```
+- hosts: all
+  gather_facts: true
+  roles:
+  - role: splunkforwarder
+```
 
 License
 -------
