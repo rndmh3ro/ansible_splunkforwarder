@@ -1,2 +1,3 @@
 splunkforwarder_server: '127.0.0.1:9997'
 splunkforwarder_dir: '/opt/splunkforwarder/'
+frontend_ip: 127.0.0.1
